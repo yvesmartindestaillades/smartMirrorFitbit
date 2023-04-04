@@ -1,2 +1,2 @@
-# smartMirrorFitbit
-Code for a smart mirror running on a RaspberryPi and displaying health data from your FitBit account
+# streamhealthdata
+Login to Apple Health and Fitbit, and stream your health data
