@@ -9,9 +9,9 @@ import json
 
 from urllib.parse import urlparse
 from base64 import b64encode
-from fitbit.api import Fitbit
+from fitbit import Fitbit, FitbitOauth2Client
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
-import fitbit
+import datetime
 
 class OAuth2Server:
     def __init__(self, client_id, client_secret,
@@ -81,10 +81,35 @@ class OAuth2Server:
             threading.Timer(1, cherrypy.engine.exit).start()
 
 
-import datetime 
+class StreamData(OAuth2Server):
+    
+    def __init__(self, client_id, client_secret, redirect_uri='http://127.0.0.1:8080/'):
+        
+        super().__init__(client_id, client_secret, redirect_uri)
+        
+        # Start the server in a background thread
+        self.browser_authorize()
+        profile = self.fitbit.user_profile_get()
+        print('You are authorized to access data for the user: {}'.format(profile['user']['fullName']))
+        
+        # Save the access and refresh tokens for later use
+        self.access_token = self.fitbit.client.session.token['access_token']
+        self.refresh_token = self.fitbit.client.session.token['refresh_token']
+        
+        # Create a FitbitOauth2Client instance with the access and refresh tokens
+        self.authd_client = Fitbit(client_id, client_secret, access_token=self.access_token, refresh_token=self.refresh_token)
+       
+    def get_sleep(self, date=datetime.date.today()):
+        return self.authd_client.get_sleep(date)
+    
+    def get_sleep_phases(self, date=datetime.date.today()):
+        return self.authd_client.make_request('{0}/{1}/user/sleep/date/{}.json'.format(self._get_common, date), method='GET')
+    
+    def revoke_token(self):
+        return self.authd_client.make_request('https://api.fitbit.com/oauth2/revoke', data={'token':self.access_token}, method='POST')
+        
 
-if __name__ == '__main__':
-
+def get_sleep_data():
     client_id, client_secret = json.load(open('fitbit_keys.json')).values()
 
     server = OAuth2Server(
@@ -93,31 +118,23 @@ if __name__ == '__main__':
         )
     server.browser_authorize()
 
-    profile = server.fitbit.user_profile_get()
-    print('You are authorized to access data for the user: {}'.format(
-        profile['user']['fullName']))
 
     print('TOKEN\n=====\n')
     
     for key, value in server.fitbit.client.session.token.items():
         print('{} = {}'.format(key, value))
     
-    access_token = server.fitbit.client.session.token['access_token']
-    refresh_token = server.fitbit.client.session.token['refresh_token']
+    
     user_id = server.fitbit.client.session.token['user_id']
 
-    authd_client = fitbit.Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
+    authd_client = Fitbit(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
+    return authd_client.get_sleep(datetime.date(2023,3,21))
+    
 
-    json.dump(authd_client.get_sleep(datetime.date(2023,3,21)), open('sleep.json', 'w'))
-    print('Sleep data saved to sleep.json')
-    
-    # read heart rate data
-    print(authd_client.intraday_time_series('activities/heart', base_date='2020-03-31', detail_level='1sec'))
-    
-    print(authd_client.heart(date='today'))
-    
-    # Revoke the token
-    #oauth_client = fitbit.FitbitOauth2Client(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
-    #print(oauth_client.make_request('https://api.fitbit.com/oauth2/revoke', data={'token':access_token}, method='POST'))
-    
-    
+def revoke_token():
+    oauth_client = FitbitOauth2Client(client_id, client_secret, access_token=access_token, refresh_token=refresh_token)
+    print(oauth_client.make_request('https://api.fitbit.com/oauth2/revoke', data={'token':access_token}, method='POST'))
+
+if __name__ == '__main__':
+    print(get_sleep_data())
+    # revoke_token()
