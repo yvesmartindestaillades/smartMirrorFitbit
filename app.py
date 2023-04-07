@@ -26,11 +26,14 @@ def build_app():
         children=[
         # header
         html.Div([
-            html.Br(),
             html.H1(children='Hello {}!     '.format(stream.get_name(), style={
-                    'color': colors['text'], 'display': 'inline-block'})),
+                    'color': colors['text'], 'display': 'inline-block',
+                    # center the title
+                   # 'margin': '0px 0px 0px 0px'
+                    
+                    
+                    })),
             # insert a date picker with arrows to change the date
-            html.Br(),
             dcc.DatePickerSingle(
                 id='date-picker',
                 min_date_allowed=datetime.date.fromisoformat(
@@ -51,6 +54,7 @@ def build_app():
                 dcc.Markdown('''# Activity'''),
                 display_hr_canvas(stream.get_hr( datetime.datetime.now())),
             ], style={'display': 'flex', 'flex-direction': 'column'}),
+            # placeholder that takes up the rest of the free space
             html.Div(className='col', children=[
                 display_sleep_canvas(stream.get_sleep(datetime.datetime.now())),
                 display_list_devices(stream.get_devices()),
@@ -96,7 +100,7 @@ if __name__=='__main__':
     # Authenticate with Fitbit
     # Start the app
         
-    authentificate = 1
+    authentificate = 0
     keys = json.load(open('credentials/fitbit_keys_main.json'))
     if authentificate:
         print('Authenticating with Fitbit...')

@@ -22,18 +22,21 @@ def display_hr_canvas(intraday_hr):
         children = html.Div(
             children=[
                 # Heart rate graph
+                #html.H2('Heart Rate', style={'color': colors['text']}),
                 dcc.Graph(
                     id='hr-graph',
                     figure=hr_linplot(intraday_hr),
                     style={'width': '6in', 'height': '5in',
                            'display': 'inline-block', 'color': colors['background']},
                 ),
+                #html.H2('Kcal Burned', style={'color': colors['text']}),
                 dcc.Graph(
                     id='kcal-graph',
                     figure=hr_kcal(intraday_hr),
                     style={'width': '6in', 'height': '5in',
                            'display': 'inline-block', 'color': colors['background']},
-                )]
+                )],
+            #style={'display': 'flex', 'flex-direction': 'column', 'color': colors['background']}
         ))
 
     return canvas
