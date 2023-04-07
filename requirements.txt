@@ -1,0 +1,7 @@
+flask 
+dash 
+numpy 
+pandas 
+plotly 
+cherrypy
+fitbit
