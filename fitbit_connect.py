@@ -11,7 +11,7 @@ from base64 import b64encode
 from fitbit import Fitbit, FitbitOauth2Client
 from oauthlib.oauth2.rfc6749.errors import MismatchingStateError, MissingTokenError
 import datetime, time
-
+from util import *
 from cherrypy.process import servers
 
 def fake_wait_for_occupied_port(host, port): return
@@ -23,37 +23,10 @@ servers.wait_for_occupied_port = fake_wait_for_occupied_port
 
 #######################################################################
 
-class StreamSleepCanvas:
-    def __init__(self, authd_client):
-        self.authd_client = authd_client
-        
-    def get_sleep(self, date=datetime.date.today()):
-        print('Getting sleep data for {}...'.format(date))
-        return self.authd_client.sleep(date)
-    
-    def save_sleep(self, date=datetime.date.today()):
-        with open('sleep.json', 'w') as f:
-            json.dump(self.get_sleep(date), f)
-
-    # Don't use
-    def extract_data(self, data):
-        startTime = data['sleep'][0]['startTime']
-        endTime = data['sleep'][0]['endTime']
-        isMainSleep = data['sleep'][0]['isMainSleep']
-        dateOfSleep = data['sleep'][0]['dateOfSleep']
-        efficiency = data['sleep'][0]['efficiency']
-        stages = data['sleep'][0]['levels']['summary']['stages']
-        minutesAsleep = data['sleep'][0]['minutesAsleep']
-        return {'startTime': startTime, 'endTime': endTime, 'isMainSleep': isMainSleep, 'dateOfSleep': dateOfSleep, 'efficiency': efficiency, 'stages': stages, 'minutesAsleep': minutesAsleep}
-    
-
-
-
-
 
 #######################################################################
 
-class StreamData(Fitbit, StreamSleepCanvas):
+class StreamData(Fitbit):
     
     def __init__(self, client_id, client_secret, access_token, refresh_token, redirect_uri='http://127.0.0.1:8080/'):
                     
@@ -73,17 +46,21 @@ class StreamData(Fitbit, StreamSleepCanvas):
         
     def get_name(self):
         return self.user_profile_get()['user']['firstName']
-    
-    def run(self, refresh_period_secs=24):
-        self.activate_run = True
-        while self.activate_run:
-            self.save_sleep()
-            self.refresh_hr()
-            time.sleep(refresh_period_secs)
 
     def stop(self):
         self.activate_run = False
-
+        
+    def get_hr_canvas(self, date=datetime.date.today()):
+        return self.intraday_time_series('activities/heart', base_date=date, detail_level='1min')
+    
+    def get_sleep_canvas(self, date=datetime.date.today()):
+        return self.get_sleep(date)
+    
+    def get_activity_recent(self):
+        url ="{0}/{1}/user/-/activities/recent.json".format(
+            *self._get_common_args()
+        )
+        return self.make_request(url)
 
 class OAuth2Server:
     def __init__(self, client_id, client_secret,
@@ -100,7 +77,7 @@ class OAuth2Server:
             client_secret,
             redirect_uri=redirect_uri,
             timeout=10,
-        )
+        )           
         
         # Start the server in a background thread
         self.redirect_uri = redirect_uri
