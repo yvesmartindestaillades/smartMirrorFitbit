@@ -7,13 +7,13 @@ from util import colors
 
 
 def display_medication():
-    
+
     return html.Div([
+        html.H1('Medication', style={'color': colors['text']}),
         dcc.Checklist(
-            options=[
-                {'label': 'Xanax', 'value': 'item1'},
-                {'label': 'Ozempic', 'value': 'item2'},
-                {'label': 'Listerine', 'value': 'item3'}
-            ],
-            value=['item1', 'item2'])
+            options=['vitamin C', 'creatin', 'ashwaganda', 'collagen', 'proteins'],
+            value=[],
+            id='medication-list',
+            ),
+        html.Div(id='medication-output')
     ])

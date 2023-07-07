@@ -7,11 +7,6 @@ from util import colors
 
 def display_sleep_canvas(sleep_data):
 
-    # Get the summary data
-    totalMinutesAsleep = sleep_data['summary']['totalMinutesAsleep']
-    totalTimeInBed = sleep_data['summary']['totalTimeInBed']
-    efficiency = sleep_data['sleep'][0]['efficiency']
-    date = sleep_data['sleep'][0]['dateOfSleep']
 
     canvas = html.Div(
         className='col',

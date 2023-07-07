@@ -9,8 +9,8 @@ import plotly.express as px
 def display_hr_canvas(intraday_hr):
 
     # Get the summary data
-    restingHeartRate = intraday_hr['activities-heart'][0]['value']['restingHeartRate']
-    freqDistribution = intraday_hr['activities-heart'][0]['value']['heartRateZones']
+#    restingHeartRate = intraday_hr['activities-heart'][0]['value']['restingHeartRate']
+#    freqDistribution = intraday_hr['activities-heart'][0]['value']['heartRateZones']
 
     if 'activities-heart-intraday' not in intraday_hr:
         return go.Figure(data=[go.Bar(x=[0], y=[0])], layout=go.Layout(title='No heart rate data for this day.', paper_bgcolor=colors['background'], plot_bgcolor=colors['background'], font=dict(color=colors['text'])))
@@ -44,9 +44,13 @@ def display_hr_canvas(intraday_hr):
 
 
 def hr_linplot(intraday_hr):
-    if 'activities-heart-intraday' not in intraday_hr:
+    if 'activities-heart-intraday' not in intraday_hr or not 'dataset' in intraday_hr['activities-heart-intraday']:
         return go.Figure(data=[go.Bar(x=[0], y=[0])], layout=go.Layout(title='No heart rate data for this day.', paper_bgcolor=colors['background'], plot_bgcolor=colors['background'], font=dict(color=colors['text'])))
     df = pd.DataFrame(intraday_hr['activities-heart-intraday']['dataset'])
+    
+    if not 'time' in df.columns:
+        return go.Figure(data=[go.Bar(x=[0], y=[0])], layout=go.Layout(title='No heart rate data for this day.', paper_bgcolor=colors['background'], plot_bgcolor=colors['background'], font=dict(color=colors['text'])))
+    
     df['time'] = pd.to_datetime(df['time'])
     return go.Figure(
             data=[
@@ -96,6 +100,9 @@ def hr_linplot(intraday_hr):
 
 def hr_kcal(intraday_hr):
     data = intraday_hr['activities-heart'][0]['value']['heartRateZones']
+    data = pd.DataFrame(data)
+    if not 'caloriesOut' in data.columns:
+        return go.Figure(data=[go.Bar(x=[0], y=[0])], layout=go.Layout(title='No heart rate data for this day.', paper_bgcolor=colors['background'], plot_bgcolor=colors['background'], font=dict(color=colors['text'])))
     df = pd.DataFrame(data).astype({'caloriesOut': 'int32'})
     df.loc[0,'name'] = 'Resting'
     return go.Figure(
