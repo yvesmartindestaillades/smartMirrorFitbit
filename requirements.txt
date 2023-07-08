@@ -5,3 +5,4 @@ pandas
 plotly 
 cherrypy
 fitbit
+firebase_admin

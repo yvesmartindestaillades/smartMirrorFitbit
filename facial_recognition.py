@@ -195,6 +195,8 @@ class FacialRecognition:
         for user in os.listdir(PATH_TO_FACES):
             facials[user] = []
             for facial_path in os.listdir(p:=os.path.join(PATH_TO_FACES, user)):
+                if '.DS_Store' in facial_path:
+                    continue
                 # load the images for each profile
                 loaded_img = face_recognition.load_image_file(os.path.join(p, facial_path))
                 # append the facial encodings to the facials dictionary

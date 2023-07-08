@@ -27,25 +27,6 @@ from util import colors
 def build_app(stream, server):
     app = dash.Dash(server = server)
 
-    # try:
-    #     stream.get_name()
-    # except:
-    #     # display a message that the stream is not connected
-    #     app.layout = html.Div(
-    #         style={'backgroundColor': colors['background'], 'color': colors['text']},
-    #         children=[
-    #             html.H1(children='No stream connected.', style={
-    #                 'textAlign': 'center',
-    #                 'color': colors['text']
-    #             }),
-    #             html.Div(children='Please connect a stream to the app.', style={
-    #                 'textAlign': 'center',
-    #                 'color': colors['text']
-    #             })
-    #         ]
-    #     )
-    #     return app
-
     app.layout = html.Div(
         style={'backgroundColor': colors['background'], 'color': colors['text']},
         children=[
@@ -181,17 +162,17 @@ if __name__=='__main__':
     # Start the app
 
     authentificate = 0
-    keys = json.load(open('credentials/fitbit_keys_main.json'))
+    keys = json.load(open('credentials/yves_martin/fitbit_keys.json'))
     if authentificate:
         print('Authenticating with Fitbit...')
         oauth_server = OAuth2Server(*keys.values())
         #dump tokens to file
-        json.dump(oauth_server.get_tokens(), open('credentials/fitbit_tokens.json', 'w'))
+        json.dump(oauth_server.get_tokens(), open('credentials/yves_martin/fitbit_tokens.json', 'w'))
 
     # Start the stream
     print('Starting stream...')
     stream = StreamData(*keys.values(),\
-                        *json.load(open('credentials/fitbit_tokens.json')))
+                        *json.load(open('credentials/yves_martin/fitbit_tokens.json')))
     
     face_rec = FacialRecognition()
     
@@ -206,6 +187,14 @@ if __name__=='__main__':
     @scheduler.task('interval', id='update_data', seconds=2)
     def facial_rec_job(app=app, facial_rec=face_rec):
         facial_rec.run()
+        # if facial_rec.user_switched and facial_rec.user is not None:
+        #     firebase.user = facial_rec.user
+            # p = os.path.join(os.abspath(os.path.dirname(__file__)), 'credentials', firebase.user)
+            # keys = json.load(open(join(p, 'fitbit_keys.json')))
+            # oauth_server = OAuth2Server(*keys.values())
+            # json.dump(oauth_server.get_tokens(), open('credentials/fitbit_tokens.json', 'w'))
+            # stream.__init__(*keys.values(), *json.load(open('credentials/fitbit_tokens.json')))
+    
     
   
     app.run_server(host='127.0.0.1',

@@ -46,31 +46,31 @@ class StreamData(Fitbit):
         json.dump(hr, open('hr.json', 'w'))
         
     def get_name(self):
-        if firebase.exists('name'):
-            return firebase.read('name')
+       # if firebase.exists('name'):
+       #     return firebase.read('name')
         return self.user_profile_get()['user']['firstName']
 
     def stop(self):
         self.activate_run = False
         
     def get_hr_canvas(self, date=datetime.date.today()):
-        if firebase.exists('hr', date):
-            return firebase.read('hr', date)
+      #  if firebase.exists('hr', date):
+      #      return firebase.read('hr', date)
         return self.intraday_time_series('activities/heart', base_date=date, detail_level='1min')
     
     def get_sleep_canvas(self, date=datetime.date.today()):
-        if firebase.exists('sleep', date):
-            return firebase.read('sleep', date)
+      #  if firebase.exists('sleep', date):
+      #      return firebase.read('sleep', date)
         return self.get_sleep(date)
     
     def get_devices_canvas(self):
-        if firebase.exists('devices'):
-            return firebase.read('devices')
+      #  if firebase.exists('devices'):
+      #      return firebase.read('devices')
         return self.get_devices()
     
     def get_activity_recent(self):
-        if firebase.exists('activity'):
-            return firebase.read('activity')
+       # if firebase.exists('activity'):
+       #     return firebase.read('activity')
         url ="{0}/{1}/user/-/activities/recent.json".format(
             *self._get_common_args()
         )
