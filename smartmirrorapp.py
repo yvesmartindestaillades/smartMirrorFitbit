@@ -16,13 +16,16 @@ from canvas.activity import *
 from canvas.survey import *
 from fitbit_connect import *
 from firebase import *
-
+from facial_recognition import FacialRecognition
+from threading import Thread 
+from server import Server
+from scheduler import Scheduler
 
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 from util import colors
 
-def build_app(stream):
-    app = dash.Dash()
+def build_app(stream, server):
+    app = dash.Dash(server = server)
 
     # try:
     #     stream.get_name()
@@ -154,13 +157,6 @@ def register_callbacks(dashapp, stream):
         firebase.set(options, 'medication/options', date)
         firebase.set(value, 'medication/value', date)
         return 1
-
-    # @dashapp.callback(
-    #     [Output('depression-question-1', 'value')],
-    #     [Input('date-picker', 'date')])
-    # def pull_depression_1(date):
-    #     data = [firebase.read('depression_1', date)] if firebase.exists('depression_1', date) else [None]
-    #     return data
     
     @dashapp.callback(
         Output('placeholder7', 'n_clicks'),
@@ -178,7 +174,7 @@ def register_callbacks(dashapp, stream):
         data1 = firebase.read('depression_1', date) if firebase.exists('depression_1', date) else 0
         data2 = firebase.read('depression_2', date) if firebase.exists('depression_2', date) else 0
         return data1, data2
-        
+       
 
 if __name__=='__main__':
     # Authenticate with Fitbit
@@ -197,14 +193,24 @@ if __name__=='__main__':
     stream = StreamData(*keys.values(),\
                         *json.load(open('credentials/fitbit_tokens.json')))
     
-
+    face_rec = FacialRecognition()
+    
+    server = Server()
+    scheduler = Scheduler(server)
+    
     app = build_app(
-        stream=stream,
-    )
+            stream=stream,
+            server=server,
+        )
+    
+    @scheduler.task('interval', id='update_data', seconds=2)
+    def facial_rec_job(app=app, facial_rec=face_rec):
+        facial_rec.run()
+    
+  
     app.run_server(host='127.0.0.1',
                 port=8030,
                 debug=True,
-              # use_reloader = not authentificate,
                 )
 
     print('done')

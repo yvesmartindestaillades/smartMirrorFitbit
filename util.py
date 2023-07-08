@@ -15,4 +15,9 @@ def last24h_interval(date = datetime.datetime.now()):
     return {'start_date': start_date, 'end_date': end_date, 'start_time': start_time, 'end_time': end_time}
 
 
+FLASK_APP='dashapp'
+FLASK_ENV='development'
+DATABASE_URL='sqlite:///${PWD}/app.db'
+SECRET_KEY='213f2309rgh3we92hfn302ifgn02492'
+
 
