@@ -161,7 +161,7 @@ if __name__=='__main__':
     # Authenticate with Fitbit
     # Start the app
 
-    authentificate = 0
+    authentificate = 1
     keys = json.load(open('credentials/yves_martin/fitbit_keys.json'))
     if authentificate:
         print('Authenticating with Fitbit...')
