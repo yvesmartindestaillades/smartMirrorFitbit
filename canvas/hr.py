@@ -51,6 +51,8 @@ def hr_linplot(intraday_hr):
     if not 'time' in df.columns:
         return go.Figure(data=[go.Bar(x=[0], y=[0])], layout=go.Layout(title='No heart rate data for this day.', paper_bgcolor=colors['background'], plot_bgcolor=colors['background'], font=dict(color=colors['text'])))
     
+    title = 'Resting heart rate: {}'.format(intraday_hr['activities-heart'][0]['value']['restingHeartRate']) if 'restingHeartRate' in intraday_hr['activities-heart'][0]['value'] else 'Heart rate data'
+    
     df['time'] = pd.to_datetime(df['time'])
     return go.Figure(
             data=[
@@ -71,7 +73,7 @@ def hr_linplot(intraday_hr):
                 )
             ],
             layout=go.Layout(
-                title='Resting heart rate: {}'.format(intraday_hr['activities-heart'][0]['value']['restingHeartRate']),
+                title=title,
                 # background color
                 paper_bgcolor=colors['background'],
                 # make the background black
