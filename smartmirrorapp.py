@@ -157,6 +157,8 @@ def register_callbacks(dashapp, stream):
         return data1, data2
        
 
+face_rec = FacialRecognition()
+
 if __name__=='__main__':
     # Authenticate with Fitbit
     # Start the app
@@ -174,7 +176,6 @@ if __name__=='__main__':
     stream = StreamData(*keys.values(),\
                         *json.load(open('credentials/yves_martin/fitbit_tokens.json')))
     
-    face_rec = FacialRecognition()
     
     server = Server()
     scheduler = Scheduler(server)
@@ -185,8 +186,8 @@ if __name__=='__main__':
         )
     
     @scheduler.task('interval', id='update_data', seconds=3)
-    def facial_rec_job(app=app, facial_rec=face_rec):
-        facial_rec.run()
+    def facial_rec_job(app=app):
+        face_rec.run()
         # if facial_rec.user_switched and facial_rec.user is not None:
         #     firebase.user = facial_rec.user
             # p = os.path.join(os.abspath(os.path.dirname(__file__)), 'credentials', firebase.user)
