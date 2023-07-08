@@ -11,7 +11,7 @@ import base64
 from server import Server
 from datetime import datetime
 
-CAMERA_IDX = 1
+CAMERA_IDX = int(os.environ['CAMERA_IDX'])
 PATH_TO_FACES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'faces')
 
 class Camera:
