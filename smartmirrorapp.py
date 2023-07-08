@@ -184,10 +184,9 @@ if __name__=='__main__':
             server=server,
         )
     
-    @scheduler.task('interval', id='update_data', seconds=2)
+    @scheduler.task('interval', id='update_data', seconds=3)
     def facial_rec_job(app=app, facial_rec=face_rec):
         facial_rec.run()
-        time.sleep(1)
         # if facial_rec.user_switched and facial_rec.user is not None:
         #     firebase.user = facial_rec.user
             # p = os.path.join(os.abspath(os.path.dirname(__file__)), 'credentials', firebase.user)
